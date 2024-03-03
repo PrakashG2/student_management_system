@@ -84,6 +84,16 @@ class ClassSchedulesScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+             ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ClassOrderScreen()),
+                );
+              },
+              child: Text('Class Order'),
+            ),            SizedBox(height: 16),
+
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -314,7 +324,7 @@ class ExamsScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SemesterScreen()),
+                  MaterialPageRoute(builder: (context) => TimetableScreen(mandatory: "SEMESTER",)),
                 );
               },
               child: Text('SEMESTER'),
@@ -379,7 +389,7 @@ class TimetableScreen extends StatelessWidget {
   final TextEditingController dateController = TextEditingController();
   final TextEditingController examController = TextEditingController();
   final TextEditingController semesterController = TextEditingController();
-  final TextEditingController yearController = TextEditingController();
+  // final TextEditingController yearController = TextEditingController();
 
   final String mandatory;
 
@@ -422,11 +432,11 @@ class TimetableScreen extends StatelessWidget {
                 decoration: InputDecoration(labelText: 'Semester'),
                 validator: (value) => _validateInput(value, 'semester'),
               ),
-              TextFormField(
-                controller: yearController,
-                decoration: InputDecoration(labelText: 'Year'),
-                validator: (value) => _validateInput(value, 'year'),
-              ),
+              // TextFormField(
+              //   controller: yearController,
+              //   decoration: InputDecoration(labelText: 'Year'),
+              //   validator: (value) => _validateInput(value, 'year'),
+              // ),
             ],
           ),
         ),
@@ -458,7 +468,7 @@ class TimetableScreen extends StatelessWidget {
         'date': dateController.text,
         'exam': examController.text,
         'semester': semesterController.text,
-        'year': yearController.text,
+        // 'year': yearController.text,
             },
           );
       // Optionally, you can navigate or show a success message here
@@ -498,7 +508,7 @@ class TimetableScreen extends StatelessWidget {
     dateController.dispose();
     examController.dispose();
     semesterController.dispose();
-    yearController.dispose();
+    // yearController.dispose();
   }
 }
 
@@ -509,12 +519,12 @@ class TimetableScreen extends StatelessWidget {
 
 
 
-class SemesterScreen extends StatefulWidget {
+class ClassOrderScreen extends StatefulWidget {
   @override
-  _SemesterScreenState createState() => _SemesterScreenState();
+  _ClassOrderScreenState createState() => _ClassOrderScreenState();
 }
 
-class _SemesterScreenState extends State<SemesterScreen> {
+class _ClassOrderScreenState extends State<ClassOrderScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<TextEditingController> hourControllers = List.generate(
     8,

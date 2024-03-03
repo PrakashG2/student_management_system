@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:student_management_system/admin/admin_home_screen.dart';
 import 'package:student_management_system/screens/signup_screen.dart';
+import 'package:student_management_system/user/user_home_screen.dart';
 import 'package:student_management_system/widgets/custom_text_field.dart';
 import 'package:student_management_system/widgets/rounded_button.dart';
 
@@ -50,7 +51,16 @@ Navigator.pushReplacement(
     builder: (context) => AdminHomeScreen(),
   ),
 );
+        }else{
+Navigator.pushReplacement(
+  context,
+  MaterialPageRoute(
+    builder: (context) => UserHomeScreen(),
+  ),
+);
         }
+
+        
 
         
       } on FirebaseAuthException catch (e) {
