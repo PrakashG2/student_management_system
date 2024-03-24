@@ -1,80 +1,180 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Admin Home'),
+        title: Text('ADMIN'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [         
-            // ElevatedButton(
-            //   onPressed: () {
-            //     // Handle Profile Management button press
-            //   },
-            //   child: Text('Profile Management'),
-            // ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
+      body: Padding(padding: EdgeInsets.all(15),child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            height: 250,
+            // margin: EdgeInsets.all(15),
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 233, 233, 233),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.network(
+                    "https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA1L2lzMTY1NDktaW1hZ2Uta3d2eWhnbXguanBn.jpg",
+                    height: 100,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.network(
+                        "https://static.vecteezy.com/system/resources/previews/027/312/350/original/portrait-of-a-female-graduate-student-isolated-essential-workers-avatar-icons-characters-for-social-media-and-networking-user-profile-website-and-app-3d-render-illustration-png.png",
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    SizedBox(width: 30),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("WELCOME",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: Colors.black)),
+                        Text("ADMIN",
+                            style: TextStyle(
+                                fontSize: 16, color: Colors.black)),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ClassSchedulesScreen()),
+              );
+            },
+            icon: Icon(Icons.schedule, color: Colors.white),
+            label: Text('CLASS SCHEDULES', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              primary: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ExamsScreen()),
+              );
+            },
+            icon: Icon(Icons.event_note, color: Colors.white),
+            label: Text('EXAMS', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              primary: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            )
+          ),
+          SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CalendarScreen()),
+              );
+            },
+            icon: Icon(Icons.calendar_today, color: Colors.white),
+            label: Text('CALENDAR', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              primary: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () async {
+              // Fetch the user ID from Firebase Authentication
+              User? user = _auth.currentUser;
+              if (user != null) {
+                String userId = user.uid;
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ClassSchedulesScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => NotesScreen(userId: userId),
+                  ),
                 );
-              },
-              child: Text('Class Shedules'),
+              } else {
+                // Handle the case where user is not authenticated
+                // You can redirect user to login screen or handle it according to your app's flow
+              }
+            },
+            icon: Icon(Icons.note, color: Colors.white),
+            label: Text('NOTES', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              primary: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ExamsScreen()),
-                );
-              },
-              child: Text('Exams'),
+          ),
+          SizedBox(height: 16),
+          ElevatedButton.icon(
+           onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ResourcesScreen()),
+              );
+            },
+            icon: Icon(Icons.folder, color: Colors.white),
+            label: Text('RESOURCES', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              primary: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-            SizedBox(height: 16),
-           ElevatedButton(
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CalendarScreen()),
-    );
-  },
-  child: Text('Calendar'),
-),
-
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Handle Notes button press
-              },
-              child: Text('Notes'),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Handle Resources button press
-              },
-              child: Text('Resources'),
-            ),
-          ],
-        ),
-      ),
+          ),
+        
+        ]
+      ),)
     );
   }
 }
+
 
 // ----------------------> CLASS SHEDULES
 
@@ -84,7 +184,7 @@ class ClassSchedulesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Class Schedules'),
+        title: Text('C L A S S  S H E D U L E S'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -705,6 +805,390 @@ class _CalendarScreenState extends State<CalendarScreen> {
         },
       ),
     );
+  }
+}
+
+class NoteForm extends StatefulWidget {
+  final bool isPublic;
+  final String userId;
+
+  const NoteForm({Key? key, required this.isPublic, required this.userId})
+      : super(key: key);
+
+  @override
+  _NoteFormState createState() => _NoteFormState();
+}
+
+class _NoteFormState extends State<NoteForm> {
+  final TextEditingController _noteController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(" A D D   N O T E"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _noteController,
+              maxLines: 5,
+              decoration: InputDecoration(
+                labelText: 'Note',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                saveNote();
+              },
+              child: Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void saveNote() async {
+    // Get the note text
+    final String noteText = _noteController.text;
+
+    // Save the note to either public or private collection based on isPublic value
+    try {
+      if (widget.isPublic) {
+        await FirebaseFirestore.instance.collection('public_notes').add({
+          'text': noteText,
+          'userId': widget.userId, // Store the user's ID
+          'timestamp': Timestamp.now(),
+        });
+      } else {
+        await FirebaseFirestore.instance.collection('private_notes').add({
+          'text': noteText,
+          'userId': widget.userId, // Store the user's ID
+          'timestamp': Timestamp.now(),
+        });
+      }
+
+      // Show success dialog
+      showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('S U C C E S S'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check_circle, size: 80, color: Colors.green),
+          SizedBox(height: 16),
+          Text('N O T E  A D D E D  S U C C E S S F U L LY'),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(); // Close the dialog
+            Navigator.of(context).pop(); // Close the note form screen
+          },
+          child: Text('OK'),
+        ),
+      ],
+    );
+  },
+);
+
+    } catch (e) {
+      print('Error saving note: $e');
+      // Handle error if necessary
+    }
+  }
+}
+
+
+class NotesScreen extends StatefulWidget {
+  final String userId;
+
+  const NotesScreen({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  _NotesScreenState createState() => _NotesScreenState();
+}
+
+class _NotesScreenState extends State<NotesScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('N O T E S'),
+      ),
+      body: SingleChildScrollView(
+        
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _navigateToAddNoteScreen(true); // Navigate to add public note
+                },
+                child: Text('A D D  P U B L I C   N O T E'),
+              ),
+              SizedBox(height: 20),
+              // ElevatedButton(
+              //   onPressed: () {
+              //     _navigateToAddNoteScreen(false); // Navigate to add private note
+              //   },
+              //   child: Text('A D D  P R I V A T E   N O T E'),
+              // ),
+              SizedBox(height: 20),
+              Text(
+                'P U B L I C   N O T ES:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              _buildNotesList('public_notes'),
+              SizedBox(height: 20),
+              // Text(
+              //   'P R I V A T E   N O T E S:',
+              //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              // ),
+              // SizedBox(height: 10),
+              // _buildNotesList('private_notes'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotesList(String collection) {
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance.collection(collection).snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Text('No notes available.');
+        }
+
+        return Column(
+          children: snapshot.data!.docs.map((document) {
+            Map<String, dynamic> noteData =
+                document.data() as Map<String, dynamic>;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Text(noteData['text'] ?? ''),
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  void _navigateToAddNoteScreen(bool isPublic) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NoteForm(
+          isPublic: isPublic,
+          userId: widget.userId,
+        ),
+      ),
+    ).then((_) {
+      // Refresh notes data after returning from the add note screen
+      // You may need to implement this if necessary
+    });
+  }
+}
+class AddAssignmentScreen extends StatefulWidget {
+  @override
+  _AddAssignmentScreenState createState() => _AddAssignmentScreenState();
+}
+
+class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
+  final TextEditingController _studentsController = TextEditingController();
+  final TextEditingController _assignmentNumberController =
+      TextEditingController();
+  final TextEditingController _topicsController = TextEditingController();
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Add Assignment'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: _studentsController,
+                decoration: InputDecoration(labelText: 'Students'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the students';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _assignmentNumberController,
+                decoration: InputDecoration(labelText: 'Assignment Number'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the assignment number';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _topicsController,
+                decoration: InputDecoration(labelText: 'Topics'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the topics';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _addAssignment();
+                  }
+                },
+                child: Text('Add Assignment'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _addAssignment() {
+    // Get values from text controllers
+    String students = _studentsController.text;
+    String assignmentNumber = _assignmentNumberController.text;
+    String topics = _topicsController.text;
+
+    // Add assignment data to Firestore
+    FirebaseFirestore.instance.collection('assignments').add({
+      'students': students,
+      'assignmentNumber': assignmentNumber,
+      'topics': topics,
+    }).then((value) {
+      // Show success message or navigate back
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Assignment added successfully'),
+        duration: Duration(seconds: 2),
+      ));
+      // Clear text fields
+      _studentsController.clear();
+      _assignmentNumberController.clear();
+      _topicsController.clear();
+    }).catchError((error) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to add assignment: $error'),
+        duration: Duration(seconds: 2),
+      ));
+    });
+  }
+}
+
+class ResourcesScreen extends StatelessWidget {
+  // List of preloaded YouTube links
+  final List<Map<String, String>> youtubeLinks = [
+    {'title': 'INTRODUCTION TO FLUTTER', 'link': 'https://youtu.be/1xipg02Wu8s?si=F22LFMk35H2SLO_H'},
+    {'title': 'DART is a alrounder', 'link': 'https://youtu.be/1xipg02Wu8s?si=F22LFMk35H2SLO_H'},
+    // Add more YouTube links as needed
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Resources'),
+      ),
+      body: ListView.builder(
+        itemCount: youtubeLinks.length,
+        itemBuilder: (context, index) {
+          // Extract the YouTube video ID from the link
+          String? videoId = youtubeLinks[index]['link'];
+          return GestureDetector(
+            onTap: () {
+              // Open the YouTube video in a browser or YouTube app
+              _openYoutubeVideo(context, videoId!);
+            },
+            child: Container(
+              margin: EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.play_circle_filled, color: Colors.red),
+                  SizedBox(width: 12.0),
+                  Text(
+                    youtubeLinks[index]['title']!,
+                    style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // Function to open the YouTube video
+  void _openYoutubeVideo(BuildContext context, String videoId) {
+    // Launch the YouTube URL
+    launch(videoId);
   }
 }
 

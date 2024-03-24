@@ -8,6 +8,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
+import 'package:table_calendar/table_calendar.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class UserHomeScreen extends StatelessWidget {
   const UserHomeScreen({Key? key}) : super(key: key);
@@ -166,17 +169,18 @@ class UserHomeScreen extends StatelessWidget {
                       ),
                       padding: EdgeInsets.all(16),
                     ),
-                  ),
+                  ),                  SizedBox(height: 20),
+
                   ElevatedButton.icon(
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ViewSemesterScreen()),
+                            builder: (context) => CalendarScreen()),
                       );
                     },
-                    icon: Icon(Icons.leaderboard, size: 35),
-                    label: Text('S E M E S T E R   T I M E  T A B L E',
+                    icon: Icon(Icons.calendar_month, size: 35),
+                    label: Text('C A L E N D E R',
                         style: TextStyle(fontSize: 18)),
                     style: ElevatedButton.styleFrom(
                       primary: Colors.black,
@@ -186,27 +190,36 @@ class UserHomeScreen extends StatelessWidget {
                       ),
                       padding: EdgeInsets.all(16),
                     ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => NotesScreen()),
-                      );
-                    },
-                    icon: Icon(Icons.leaderboard, size: 35),
-                    label: Text('N O T E S',
-                        style: TextStyle(fontSize: 18)),
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.black,
-                      onPrimary: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: EdgeInsets.all(16),
+                  ),                  SizedBox(height: 20),
+
+                 ElevatedButton.icon(
+              onPressed: () async {
+                // Fetch the user ID from Firebase Authentication
+                User? user = _auth.currentUser;
+                if (user != null) {
+                  String userId = user.uid;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NotesScreen(userId: userId),
                     ),
-                  ),
+                  );
+                } else {
+                  // Handle the case where user is not authenticated
+                  // You can redirect user to login screen or handle it according to your app's flow
+                }
+              },
+              icon: Icon(Icons.notes, size: 35),
+              label: Text('N O T E S', style: TextStyle(fontSize: 18)),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.black,
+                onPrimary: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: EdgeInsets.all(16),
+              ),
+            ),
                 ]),
           )
         ],
@@ -299,42 +312,42 @@ class ExamsScreen extends StatelessWidget {
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return Text('No data available.');
             }
-            return GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              children: snapshot.data!.docs.map((document) {
-                Map<String, dynamic> data =
-                    document.data() as Map<String, dynamic>;
-                return Card(
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(Icons.assignment_turned_in,
-                            size: 40, color: Colors.green),
-                        SizedBox(height: 8),
-                        Text('EXAM TYPE: ${data['examType']}',
-                            style: TextStyle(fontSize: 16)),
-                        SizedBox(height: 8),
-                        Text('DATE: ${data['date']}',
-                            style: TextStyle(fontSize: 14)),
-                        Text('EXAM: ${data['exam']}',
-                            style: TextStyle(fontSize: 14)),
-                        Text('SEMESTER: ${data['semester']}',
-                            style: TextStyle(fontSize: 14)),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            );
+            return ListView.builder(
+  itemCount: snapshot.data!.docs.length,
+  itemBuilder: (context, index) {
+    Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+    final examType = data['examType'];
+    final bool examTypeStartsWithC = examType.isNotEmpty && examType.toLowerCase().startsWith('c');
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(examTypeStartsWithC ? Icons.assignment_turned_in : Icons.school,
+                size: 40, color: examTypeStartsWithC ? Colors.green : Colors.red),
+            SizedBox(height: 8),
+            Text('EXAM TYPE: ${data['examType']}',
+                style: TextStyle(fontSize: 16)),
+            SizedBox(height: 8),
+            Text('DATE: ${data['date']}',
+                style: TextStyle(fontSize: 14)),
+            Text('SESSION: ${data['exam']}',
+                style: TextStyle(fontSize: 14)),
+            Text('DESCRIPTION: ${data['semester']}',
+                style: TextStyle(fontSize: 14)),
+          ],
+        ),
+      ),
+    );
+  },
+);
+
           },
         ),
       ),
@@ -709,7 +722,7 @@ class ViewSemesterDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('View Semester Data'),
+        title: Text('D A Y  O R D E R'),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
@@ -859,29 +872,32 @@ class _NoteFormState extends State<NoteForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextField(
-            controller: _noteController,
-            maxLines: 5,
-            decoration: InputDecoration(
-              labelText: 'Note',
-              border: OutlineInputBorder(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(" A D D   N O T E"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _noteController,
+              maxLines: 5,
+              decoration: InputDecoration(
+                labelText: 'Note',
+                border: OutlineInputBorder(),
+              ),
             ),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Save the note to the appropriate collection based on isPublic value
-              saveNote();
-              Navigator.pop(context); // Go back to the previous screen
-            },
-            child: Text('Save'),
-          ),
-        ],
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                saveNote();
+              },
+              child: Text('Save'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -891,31 +907,55 @@ class _NoteFormState extends State<NoteForm> {
     final String noteText = _noteController.text;
 
     // Save the note to either public or private collection based on isPublic value
-    if (widget.isPublic) {
-      try {
+    try {
+      if (widget.isPublic) {
         await FirebaseFirestore.instance.collection('public_notes').add({
           'text': noteText,
           'userId': widget.userId, // Store the user's ID
           'timestamp': Timestamp.now(),
         });
-      } catch (e) {
-        print('Error saving public note: $e');
-        // Handle error if necessary
-      }
-    } else {
-      try {
+      } else {
         await FirebaseFirestore.instance.collection('private_notes').add({
           'text': noteText,
           'userId': widget.userId, // Store the user's ID
           'timestamp': Timestamp.now(),
         });
-      } catch (e) {
-        print('Error saving private note: $e');
-        // Handle error if necessary
       }
+
+      // Show success dialog
+      showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('S U C C E S S'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check_circle, size: 80, color: Colors.green),
+          SizedBox(height: 16),
+          Text('N O T E  A D D E D  S U C C E S S F U L LY'),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(); // Close the dialog
+            Navigator.of(context).pop(); // Close the note form screen
+          },
+          child: Text('OK'),
+        ),
+      ],
+    );
+  },
+);
+
+    } catch (e) {
+      print('Error saving note: $e');
+      // Handle error if necessary
     }
   }
 }
+
 
 class NotesScreen extends StatefulWidget {
   final String userId;
@@ -943,86 +983,78 @@ class _NotesScreenState extends State<NotesScreen> {
                 onPressed: () {
                   _navigateToAddNoteScreen(true); // Navigate to add public note
                 },
-                child: Text('Add Public Note'),
+                child: Text('A D D  P U B L I C   N O T E'),
               ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   _navigateToAddNoteScreen(false); // Navigate to add private note
                 },
-                child: Text('Add Private Note'),
+                child: Text('A D D  P R I V A T E   N O T E'),
               ),
               SizedBox(height: 20),
-              Text('Public Notes:'),
-              SizedBox(height: 10),
-              StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection('public_notes')
-                    .snapshots(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Text('No public notes available.');
-                  }
-
-                  return Column(
-                    children: snapshot.data!.docs.map((document) {
-                      Map<String, dynamic> noteData =
-                          document.data() as Map<String, dynamic>;
-                      return ListTile(
-                        title: Text(noteData['text'] ?? ''),
-                        // You can display other note details here
-                      );
-                    }).toList(),
-                  );
-                },
+              Text(
+                'P U B L I C   N O T ES:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+              SizedBox(height: 10),
+              _buildNotesList('public_notes'),
               SizedBox(height: 20),
-              Text('Private Notes:'),
-              SizedBox(height: 10),
-              StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection('private_notes')
-                    .where('userId', isEqualTo: widget.userId)
-                    .snapshots(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Text('No private notes available.');
-                  }
-
-                  return Column(
-                    children: snapshot.data!.docs.map((document) {
-                      Map<String, dynamic> noteData =
-                          document.data() as Map<String, dynamic>;
-                      return ListTile(
-                        title: Text(noteData['text'] ?? ''),
-                        // You can display other note details here
-                      );
-                    }).toList(),
-                  );
-                },
+              Text(
+                'P R I V A T E   N O T E S:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+              SizedBox(height: 10),
+              _buildNotesList('private_notes'),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNotesList(String collection) {
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance.collection(collection).snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Text('No notes available.');
+        }
+
+        return Column(
+          children: snapshot.data!.docs.map((document) {
+            Map<String, dynamic> noteData =
+                document.data() as Map<String, dynamic>;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Text(noteData['text'] ?? ''),
+              ),
+            );
+          }).toList(),
+        );
+      },
     );
   }
 
@@ -1034,6 +1066,60 @@ class _NotesScreenState extends State<NotesScreen> {
           isPublic: isPublic,
           userId: widget.userId,
         ),
+      ),
+    ).then((_) {
+      // Refresh notes data after returning from the add note screen
+      // You may need to implement this if necessary
+    });
+  }
+}
+
+class CalendarScreen extends StatefulWidget {
+  @override
+  _CalendarScreenState createState() => _CalendarScreenState();
+}
+
+class _CalendarScreenState extends State<CalendarScreen> {
+  late DateTime _focusedDay;
+  late DateTime _selectedDay;
+
+  Map<DateTime, List<Color>> _events = {}; // Map to store events (colors) for each date
+
+  @override
+  void initState() {
+    super.initState();
+    _focusedDay = DateTime.now();
+    _selectedDay = DateTime.now();
+
+    // Example: Marking some important dates with different colors
+    _events = {
+      DateTime.now().subtract(Duration(days: 1)): [Colors.red], // Yesterday - Red color
+      DateTime.now().add(Duration(days: 2)): [Colors.green],   // Tomorrow - Green color
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Calendar'),
+      ),
+      body: TableCalendar(
+        firstDay: DateTime.utc(2020, 1, 1),
+        lastDay: DateTime.utc(2025, 12, 31),
+        focusedDay: _focusedDay,
+        selectedDayPredicate: (day) {
+          return isSameDay(_selectedDay, day);
+        },
+        eventLoader: (day) {
+          return _events[day] ?? []; // Return the colors for the specified day
+        },
+        onDaySelected: (selectedDay, focusedDay) {
+          setState(() {
+            _selectedDay = selectedDay;
+            _focusedDay = focusedDay;
+          });
+        },
       ),
     );
   }
