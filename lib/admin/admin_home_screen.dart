@@ -1,5 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:table_calendar/table_calendar.dart';
+
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({Key? key}) : super(key: key);
@@ -14,13 +17,13 @@ class AdminHomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                // Handle Profile Management button press
-              },
-              child: Text('Profile Management'),
-            ),
+          children: [         
+            // ElevatedButton(
+            //   onPressed: () {
+            //     // Handle Profile Management button press
+            //   },
+            //   child: Text('Profile Management'),
+            // ),
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
@@ -42,12 +45,16 @@ class AdminHomeScreen extends StatelessWidget {
               child: Text('Exams'),
             ),
             SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Handle Calendar button press
-              },
-              child: Text('Calendar'),
-            ),
+           ElevatedButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CalendarScreen()),
+    );
+  },
+  child: Text('Calendar'),
+),
+
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
@@ -91,7 +98,7 @@ class ClassSchedulesScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => ClassOrderScreen()),
                 );
               },
-              child: Text('Class Order'),
+              child: Text('D A Y   O R D E R'),
             ),            SizedBox(height: 16),
 
             ElevatedButton(
@@ -132,12 +139,14 @@ class ClassSchedulesScreen extends StatelessWidget {
 class AddAssignmentsScreen extends StatelessWidget {
   final TextEditingController studentsController = TextEditingController();
   final TextEditingController topicsController = TextEditingController();
+    final TextEditingController assNumController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Assignments'),
+        title: Text('A D D   A S S I G N M E N T S'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -159,6 +168,14 @@ class AddAssignmentsScreen extends StatelessWidget {
                 decoration: InputDecoration(labelText: 'Topics'),
               ),
             ),
+            SizedBox(height: 16),
+            Expanded(
+              child: TextField(
+                controller: assNumController,
+                maxLines: null,
+                decoration: InputDecoration(labelText: 'A S S I G N M E N T   N U M B E R'),
+              ),
+            ),
           ],
         ),
       ),
@@ -170,6 +187,8 @@ class AddAssignmentsScreen extends StatelessWidget {
             {
               'students': studentsController.text,
               'topics': topicsController.text,
+              'assignmnetNumber': assNumController.text,
+               
             },
           );
         },
@@ -540,7 +559,7 @@ class _ClassOrderScreenState extends State<ClassOrderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Semester'),
+        title: Text('D A Y  O R D E R'),
       ),
       body: Form(
         key: _formKey,
@@ -634,4 +653,63 @@ class _ClassOrderScreenState extends State<ClassOrderScreen> {
     }
     super.dispose();
   }
+}
+
+
+
+class CalendarScreen extends StatefulWidget {
+  @override
+  _CalendarScreenState createState() => _CalendarScreenState();
+}
+
+class _CalendarScreenState extends State<CalendarScreen> {
+  late DateTime _focusedDay;
+  late DateTime _selectedDay;
+
+  Map<DateTime, List<Color>> _events = {}; // Map to store events (colors) for each date
+
+  @override
+  void initState() {
+    super.initState();
+    _focusedDay = DateTime.now();
+    _selectedDay = DateTime.now();
+
+    // Example: Marking some important dates with different colors
+    _events = {
+      DateTime.now().subtract(Duration(days: 1)): [Colors.red], // Yesterday - Red color
+      DateTime.now().add(Duration(days: 2)): [Colors.green],   // Tomorrow - Green color
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Calendar'),
+      ),
+      body: TableCalendar(
+        firstDay: DateTime.utc(2020, 1, 1),
+        lastDay: DateTime.utc(2025, 12, 31),
+        focusedDay: _focusedDay,
+        selectedDayPredicate: (day) {
+          return isSameDay(_selectedDay, day);
+        },
+        eventLoader: (day) {
+          return _events[day] ?? []; // Return the colors for the specified day
+        },
+        onDaySelected: (selectedDay, focusedDay) {
+          setState(() {
+            _selectedDay = selectedDay;
+            _focusedDay = focusedDay;
+          });
+        },
+      ),
+    );
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: CalendarScreen(),
+  ));
 }

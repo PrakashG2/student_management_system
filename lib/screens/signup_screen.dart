@@ -31,7 +31,7 @@ class _SignupScreenState extends State<SignupScreen> {
             children: [
               CircleAvatar(
                 radius: 50,
-                backgroundImage: NetworkImage('URL_TO_YOUR_IMAGE'),
+                backgroundImage: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmj8SbIkf15HKJQ47D2pFPHf_47u3DGLRNhw&usqp=CAU'),
               ),
               CustomTextField(
                 label: 'Username',
